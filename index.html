@@ -564,7 +564,7 @@
 // ══════════════════════════════════════════
 // CONFIG – thay SHEET_CSV_URL sau khi tạo sheet
 // ══════════════════════════════════════════
-const SHEET_CSV_URL = 'YOUR_SHEET_CSV_URL_HERE';
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTakiORO_QsUfTJPVEalYIxdDo64f_d57Z7QiWUYJ1_3ijhucg84i5Qio_9sm7QALG4L0SUJGmvWOSW/pubhtml?gid=0&single=true';
 // Hướng dẫn lấy URL:
 // File > Share > Publish to web > Sheet: DUE_Config > CSV > Publish > Copy link
 
@@ -629,7 +629,7 @@ function addDays(d, days) { return new Date(d.getTime() + days*86400000); }
 // LOAD DATA FROM GOOGLE SHEET CSV
 // ══════════════════════════════════════════
 async function loadData() {
-  if (SHEET_CSV_URL === 'YOUR_SHEET_CSV_URL_HERE') {
+  if (SHEET_CSV_URL === 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTakiORO_QsUfTJPVEalYIxdDo64f_d57Z7QiWUYJ1_3ijhucg84i5Qio_9sm7QALG4L0SUJGmvWOSW/pubhtml?gid=0&single=true') {
     // Use sample data
     allProducts = SAMPLE_DATA;
     document.getElementById('sheet-status').textContent = 'SAMPLE DATA';
