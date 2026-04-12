@@ -677,7 +677,7 @@ body {
 // ══════════════════════════════════════════════════════
 // ⚙️  CONFIG – Paste Apps Script Web App URL vào đây
 // ══════════════════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/a/macros/phuctea.com.vn/s/AKfycbzSfm_wIi1XPiLar10lFwwrXQ2QL6VwoGzkuNp8aM7WeNjWGOiLqaAfpxPwBhAw7d-X/exec';
+const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
 
 // ── SAMPLE DATA ──
 const SAMPLE = [
@@ -884,17 +884,60 @@ document.getElementById('btn-print').onclick=()=>{
     const e=d&&u?new Date(Math.min(d.getTime(),addD(u,p.hsd_sau_mo).getTime())):null;
     eTxt=e?fmt(e):'—';
   }
-  const tem=`<div class="tem">
-    <div class="tem-name">${p.name}</div>
-    <div class="tem-rows">
-      <div class="tem-row"><span class="tem-lbl">D:</span><span>${dTxt}</span></div>
-      <div class="tem-row"><span class="tem-lbl">U:</span><span>${uTxt}</span></div>
-      <div class="tem-row"><span class="tem-lbl">E:</span><span>${eTxt}</span></div>
+  // Build từng tem riêng biệt
+  const temHTML = (name, dTxt, uTxt, eTxt) => `
+    <div style="
+      width:50mm; height:30mm;
+      padding:2.5mm 3mm 2mm;
+      display:flex; flex-direction:column; justify-content:space-between;
+      font-family:'Arial Narrow',Arial,sans-serif;
+      page-break-after:always;
+      break-after:page;
+      box-sizing:border-box;
+      overflow:hidden;
+    ">
+      <div style="font-size:8pt;font-weight:900;line-height:1.1;text-transform:uppercase;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+        ${name}
+      </div>
+      <div style="font-size:7pt;font-family:'Courier New',monospace;line-height:1.65;">
+        <div style="display:flex;gap:2mm;"><span style="font-weight:700;min-width:5mm;">D:</span><span>${dTxt}</span></div>
+        <div style="display:flex;gap:2mm;"><span style="font-weight:700;min-width:5mm;">U:</span><span>${uTxt}</span></div>
+        <div style="display:flex;gap:2mm;"><span style="font-weight:700;min-width:5mm;">E:</span><span>${eTxt}</span></div>
+      </div>
+      <div style="font-size:6.5pt;border-top:.3mm solid #555;padding-top:1mm;display:flex;justify-content:space-between;align-items:center;">
+        <span>NV:</span>
+        <span style="border-bottom:.3mm solid #000;min-width:30mm;">&nbsp;</span>
+      </div>
     </div>
-    <div class="tem-nv"><span>NV:</span><span class="tem-nv-line">&nbsp;</span></div>
-  </div>`;
-  document.getElementById('print-area').innerHTML=Array(qty).fill(tem).join('');
-  setTimeout(()=>{window.print();document.getElementById('print-area').innerHTML='';},80);
+  `;
+
+  // Tạo iframe ẩn để in độc lập
+  const old = document.getElementById('_print_iframe');
+  if(old) old.remove();
+
+  const iframe = document.createElement('iframe');
+  iframe.id = '_print_iframe';
+  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:50mm;height:0;border:none;';
+  document.body.appendChild(iframe);
+
+  const allTem = Array.from({length: qty}, () => temHTML(p.name, dTxt, uTxt, eTxt)).join('');
+
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(`<!DOCTYPE html><html><head>
+    <style>
+      @page { size: 50mm 30mm; margin: 0; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { margin: 0; padding: 0; background: white; }
+    </style>
+  </head><body>${allTem}</body></html>`);
+  doc.close();
+
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+    setTimeout(() => iframe.remove(), 1000);
+  }, 300);
 };
 
 // ── SEARCH ──
