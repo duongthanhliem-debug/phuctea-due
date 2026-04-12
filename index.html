@@ -677,7 +677,7 @@ body {
 // ══════════════════════════════════════════════════════
 // ⚙️  CONFIG – Paste Apps Script Web App URL vào đây
 // ══════════════════════════════════════════════════════
-const APPS_SCRIPT_URL = 'https://script.google.com/a/macros/phuctea.com.vn/s/AKfycbzOQrgWwLlgQetQ0DUw_KBp8Xtjf9g1p-JwdLTmDoi1eQITk3VGZOWzYBNPRN71bskU/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/a/macros/phuctea.com.vn/s/AKfycbzSfm_wIi1XPiLar10lFwwrXQ2QL6VwoGzkuNp8aM7WeNjWGOiLqaAfpxPwBhAw7d-X/exec';
 
 // ── SAMPLE DATA ──
 const SAMPLE = [
@@ -722,8 +722,8 @@ function showToast(msg, isErr=false){
   setTimeout(()=>t.style.display='none',3000);
 }
 
-// ── LOAD DATA ──
-async function loadData(){
+// ── LOAD DATA (JSONP – không bị CORS) ──
+function loadData(){
   const dot=document.getElementById('sync-dot');
   const lbl=document.getElementById('sync-label');
 
@@ -736,20 +736,48 @@ async function loadData(){
 
   lbl.textContent='Đang tải...';
   dot.style.background='#F5A623';
-  try{
-    const res=await fetch(APPS_SCRIPT_URL);
-    const json=await res.json();
-    if(json.error) throw new Error(json.error);
-    products=json.products||[];
+
+  // Timeout nếu script không trả về sau 8 giây
+  const timer = setTimeout(()=>{
+    dot.style.background='#E53E3E';
+    lbl.textContent='Hết thời gian!';
+    products=SAMPLE; render();
+    showToast('Không tải được dữ liệu, đang dùng sample data.', true);
+    window.__phucteaCB = ()=>{};
+  }, 8000);
+
+  // Callback toàn cục để JSONP gọi vào
+  window.__phucteaCB = function(data){
+    clearTimeout(timer);
+    // Dọn script tag
+    const old=document.getElementById('_jsonp_script');
+    if(old) old.remove();
+
+    if(data.error){
+      dot.style.background='#E53E3E';
+      lbl.textContent='Lỗi: '+data.error;
+      products=SAMPLE; render();
+      showToast('Lỗi: '+data.error, true);
+      return;
+    }
+    products=data.products||[];
     dot.style.background='#2D8248';
     lbl.textContent=`${products.length} sản phẩm · Đã đồng bộ`;
     render();
-  }catch(err){
+  };
+
+  // Inject script tag với callback=__phucteaCB
+  const s=document.createElement('script');
+  s.id='_jsonp_script';
+  s.src=APPS_SCRIPT_URL+'?callback=__phucteaCB';
+  s.onerror=()=>{
+    clearTimeout(timer);
     dot.style.background='#E53E3E';
     lbl.textContent='Lỗi kết nối!';
     products=SAMPLE; render();
     showToast('Không tải được dữ liệu, đang dùng sample data.', true);
-  }
+  };
+  document.body.appendChild(s);
 }
 
 // ── RENDER ──
