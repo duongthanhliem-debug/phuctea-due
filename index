@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHÚC TEA – In Tem</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --blue: #3b82f6;
+    --blue-dim: #1e3a5f;
+    --green: #22c55e;
+    --green-dim: #14532d;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --text: #e8eaf6;
+    --text-muted: #6b7280;
+    --text-dim: #9ca3af;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Be Vietnam Pro', sans-serif;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.08em;
+    color: var(--amber);
+  }
+
+  .logo span { color: var(--text-muted); font-weight: 400; }
+
+  #status-bar {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+  #clock {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: calc(100vh - 49px);
+    overflow: hidden;
+  }
+
+  /* ── COLUMN ── */
+  .col {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .col:last-child { border-right: none; }
+
+  .col-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  .col-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .col-left .col-title { color: var(--blue); }
+  .col-right .col-title { color: var(--green); }
+
+  .search-wrap {
+    position: relative;
+  }
+  .search-wrap input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px 7px 30px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .search-wrap input:focus { border-color: var(--blue); }
+  .search-wrap svg {
+    position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted); pointer-events: none;
+  }
+
+  /* ── PRODUCT LIST ── */
+  .product-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .product-list::-webkit-scrollbar { width: 4px; }
+  .product-list::-webkit-scrollbar-track { background: transparent; }
+  .product-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .product-btn {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.3;
+  }
+  .product-btn:hover {
+    background: var(--surface2);
+    border-color: var(--blue);
+    transform: translateX(2px);
+  }
+  .col-right .product-btn:hover { border-color: var(--green); }
+
+  .product-btn.active-blue { border-color: var(--blue); background: var(--blue-dim); }
+  .product-btn.active-green { border-color: var(--green); background: var(--green-dim); }
+
+  .product-id {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--bg);
+    padding: 2px 5px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .loading-state {
+    text-align: center;
+    padding: 40px 16px;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: var(--mono);
+    animation: blink 1s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ── PANEL OVERLAY ── */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(3px);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .overlay.open { display: flex; }
+
+  .panel {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-radius: 18px 18px 0 0;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px 24px 28px;
+    animation: slideUp .2s ease;
+  }
+  @keyframes slideUp { from{transform:translateY(60px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+  .panel-drag {
+    width: 40px; height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+
+  .panel-name {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .panel-type {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    margin-bottom: 16px;
+  }
+  .type-btp { background: var(--green-dim); color: var(--green); }
+  .type-nlt { background: var(--blue-dim); color: var(--blue); }
+
+  .fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .field-full { grid-column: 1/-1; }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 5px;
+  }
+
+  .field input[type="datetime-local"],
+  .field input[type="date"],
+  .field input[type="number"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 11px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .field input:focus { border-color: var(--amber); }
+  .field input[readonly] {
+    color: var(--text-muted);
+    cursor: default;
+    background: var(--surface2);
+  }
+
+  .field-e-value {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 11px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--amber);
+    font-weight: 600;
+  }
+
+  .field-due-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .due-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--amber);
+    width: 16px;
+    flex-shrink: 0;
+  }
+
+  .qty-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .qty-row label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .qty-btn {
+    width: 34px; height: 34px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .1s;
+  }
+  .qty-btn:hover { background: var(--border); }
+  #qty-display {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    min-width: 36px;
+    text-align: center;
+  }
+
+  .btn-print {
+    width: 100%;
+    background: var(--amber);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: .05em;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-print:hover { background: #fbbf24; transform: translateY(-1px); }
+  .btn-print:active { transform: translateY(0); }
+
+  .btn-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 30px; height: 30px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    color: var(--text-muted);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all .15s;
+  }
+  .btn-close:hover { color: var(--text); background: var(--border); }
+
+  .panel { position: relative; }
+
+  /* ── PRINT AREA ── */
+  #print-area { display: none; }
+
+  @media print {
+    body > *:not(#print-area) { display: none !important; }
+    #print-area { display: block !important; }
+
+    @page {
+      size: 50mm 30mm;
+      margin: 0;
+    }
+
+    .tem-page {
+      width: 50mm;
+      height: 30mm;
+      padding: 2mm 2.5mm;
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+    }
+
+    .tem-page:last-child {
+      page-break-after: avoid;
+    }
+
+    .tem-name {
+      font-size: 8pt;
+      font-weight: 900;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tem-due-block {
+      font-size: 7pt;
+      line-height: 1.55;
+      font-family: 'Courier New', monospace;
+    }
+
+    .tem-due-row {
+      display: flex;
+      gap: 3mm;
+    }
+
+    .tem-due-label {
+      font-weight: 700;
+      min-width: 4mm;
+    }
+
+    .tem-nv {
+      font-size: 7pt;
+      border-top: 0.3mm solid #000;
+      padding-top: 1mm;
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">PHÚC TEA <span>// IN TEM</span></div>
+  <div id="status-bar">
+    <div class="dot"></div>
+    <span id="sheet-status">Đang tải...</span>
+    &nbsp;|&nbsp;
+    <span id="clock"></span>
+  </div>
+</header>
+
+<div class="main">
+  <!-- LEFT: NGUYÊN LIỆU THÔ -->
+  <div class="col col-left">
+    <div class="col-header">
+      <div class="col-title">🔵 Nguyên liệu thô</div>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="search-nlt" placeholder="Tìm nguyên liệu..." autocomplete="off">
+      </div>
+    </div>
+    <div class="product-list" id="list-nlt">
+      <div class="loading-state">Đang tải dữ liệu...</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: BÁN THÀNH PHẨM -->
+  <div class="col col-right">
+    <div class="col-header">
+      <div class="col-title">🟢 Bán thành phẩm</div>
+      <div class="search-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="search-btp" placeholder="Tìm bán thành phẩm..." autocomplete="off">
+      </div>
+    </div>
+    <div class="product-list" id="list-btp">
+      <div class="loading-state">Đang tải dữ liệu...</div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="panel" id="panel">
+    <div class="panel-drag"></div>
+    <button class="btn-close" id="btn-close">✕</button>
+
+    <div class="panel-name" id="p-name">—</div>
+    <div class="panel-type" id="p-type">—</div>
+
+    <div class="fields" id="fields-btp">
+      <!-- BÁN THÀNH PHẨM fields -->
+      <div class="field">
+        <label>D – Thời điểm làm</label>
+        <input type="datetime-local" id="d-btp">
+      </div>
+      <div class="field">
+        <label>U – Đạt chuẩn lúc</label>
+        <input type="datetime-local" id="u-btp">
+      </div>
+      <div class="field field-full">
+        <label>E – Hạn sử dụng (tự tính)</label>
+        <div class="field-e-value" id="e-btp">—</div>
+      </div>
+    </div>
+
+    <div class="fields" id="fields-nlt" style="display:none">
+      <!-- NGUYÊN LIỆU THÔ fields -->
+      <div class="field field-full">
+        <label>HSD bao bì (D)</label>
+        <input type="date" id="d-nlt">
+      </div>
+      <div class="field">
+        <label>U – Thời điểm mở</label>
+        <input type="datetime-local" id="u-nlt">
+      </div>
+      <div class="field">
+        <label>E – Hạn sử dụng (tự tính)</label>
+        <div class="field-e-value" id="e-nlt">—</div>
+      </div>
+    </div>
+
+    <div class="qty-row">
+      <label>SỐ TEM:</label>
+      <div class="qty-controls">
+        <button class="qty-btn" id="qty-minus">−</button>
+        <div id="qty-display">1</div>
+        <button class="qty-btn" id="qty-plus">+</button>
+      </div>
+    </div>
+
+    <button class="btn-print" id="btn-print">
+      🖨️ &nbsp; IN TEM
+    </button>
+  </div>
+</div>
+
+<!-- HIDDEN PRINT AREA -->
+<div id="print-area"></div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG – thay SHEET_CSV_URL sau khi tạo sheet
+// ══════════════════════════════════════════
+const SHEET_CSV_URL = 'YOUR_SHEET_CSV_URL_HERE';
+// Hướng dẫn lấy URL:
+// File > Share > Publish to web > Sheet: DUE_Config > CSV > Publish > Copy link
+
+// ══════════════════════════════════════════
+// SAMPLE DATA (dùng khi chưa có sheet thật)
+// ══════════════════════════════════════════
+const SAMPLE_DATA = [
+  { id:'TS01', name:'Trà sữa truyền thống', type:'BanThanhPham', u_hours:5, e_hours:12, hsd_bao_bi:0, hsd_sau_mo:0 },
+  { id:'TS02', name:'Trà sữa matcha', type:'BanThanhPham', u_hours:5, e_hours:12, hsd_bao_bi:0, hsd_sau_mo:0 },
+  { id:'TS03', name:'Hồng trà sữa', type:'BanThanhPham', u_hours:4, e_hours:10, hsd_bao_bi:0, hsd_sau_mo:0 },
+  { id:'TS04', name:'Bạc xỉu', type:'BanThanhPham', u_hours:3, e_hours:8, hsd_bao_bi:0, hsd_sau_mo:0 },
+  { id:'NL01', name:'Trân châu đen', type:'NguyenLieuTho', u_hours:0, e_hours:0, hsd_bao_bi:180, hsd_sau_mo:3 },
+  { id:'NL02', name:'Sữa đặc', type:'NguyenLieuTho', u_hours:0, e_hours:0, hsd_bao_bi:365, hsd_sau_mo:14 },
+  { id:'NL03', name:'Siro đường', type:'NguyenLieuTho', u_hours:0, e_hours:0, hsd_bao_bi:180, hsd_sau_mo:30 },
+  { id:'NL04', name:'Trân châu trắng', type:'NguyenLieuTho', u_hours:0, e_hours:0, hsd_bao_bi:180, hsd_sau_mo:3 },
+];
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let allProducts = [];
+let currentProduct = null;
+let qty = 1;
+
+// ══════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════
+function tickClock() {
+  document.getElementById('clock').textContent = formatFull(new Date());
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+// ══════════════════════════════════════════
+// DATE UTILS
+// ══════════════════════════════════════════
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function formatFull(d) {
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${String(d.getFullYear()).slice(2)} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function formatDateOnly(d) {
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${String(d.getFullYear()).slice(2)}`;
+}
+
+function toLocalInputDT(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function toLocalInputDate(d) {
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function parseDT(str) { return str ? new Date(str) : null; }
+function parseDate(str) { return str ? new Date(str + 'T00:00:00') : null; }
+
+function addHours(d, h) { return new Date(d.getTime() + h*3600000); }
+function addDays(d, days) { return new Date(d.getTime() + days*86400000); }
+
+// ══════════════════════════════════════════
+// LOAD DATA FROM GOOGLE SHEET CSV
+// ══════════════════════════════════════════
+async function loadData() {
+  if (SHEET_CSV_URL === 'YOUR_SHEET_CSV_URL_HERE') {
+    // Use sample data
+    allProducts = SAMPLE_DATA;
+    document.getElementById('sheet-status').textContent = 'SAMPLE DATA';
+    renderLists();
+    return;
+  }
+
+  try {
+    const res = await fetch(SHEET_CSV_URL);
+    const text = await res.text();
+    const rows = text.trim().split('\n').slice(1); // skip header
+    allProducts = rows.map(row => {
+      const cols = row.split(',');
+      return {
+        id: cols[0]?.trim(),
+        name: cols[1]?.trim(),
+        type: cols[2]?.trim(),
+        u_hours: parseFloat(cols[3]) || 0,
+        e_hours: parseFloat(cols[4]) || 0,
+        hsd_bao_bi: parseFloat(cols[5]) || 0,
+        hsd_sau_mo: parseFloat(cols[6]) || 0,
+      };
+    }).filter(p => p.id && p.name);
+
+    document.getElementById('sheet-status').textContent = `${allProducts.length} sản phẩm`;
+    renderLists();
+  } catch(e) {
+    document.getElementById('sheet-status').textContent = 'Lỗi tải sheet!';
+    allProducts = SAMPLE_DATA;
+    renderLists();
+  }
+}
+
+// ══════════════════════════════════════════
+// RENDER PRODUCT LISTS
+// ══════════════════════════════════════════
+function renderLists(searchNlt='', searchBtp='') {
+  const nltProds = allProducts.filter(p => p.type === 'NguyenLieuTho' && p.name.toLowerCase().includes(searchNlt.toLowerCase()));
+  const btpProds = allProducts.filter(p => p.type === 'BanThanhPham' && p.name.toLowerCase().includes(searchBtp.toLowerCase()));
+
+  renderList('list-nlt', nltProds, 'nlt');
+  renderList('list-btp', btpProds, 'btp');
+}
+
+function renderList(containerId, products, colType) {
+  const container = document.getElementById(containerId);
+  if (products.length === 0) {
+    container.innerHTML = '<div class="empty-state">Không tìm thấy sản phẩm</div>';
+    return;
+  }
+  container.innerHTML = products.map(p => `
+    <button class="product-btn" data-id="${p.id}" onclick="selectProduct('${p.id}')">
+      <span class="product-id">${p.id}</span>
+      ${p.name}
+    </button>
+  `).join('');
+}
+
+// ══════════════════════════════════════════
+// SELECT PRODUCT → OPEN PANEL
+// ══════════════════════════════════════════
+function selectProduct(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  currentProduct = p;
+  qty = 1;
+
+  // Highlight
+  document.querySelectorAll('.product-btn').forEach(b => b.classList.remove('active-blue','active-green'));
+  const btn = document.querySelector(`.product-btn[data-id="${id}"]`);
+  if (btn) btn.classList.add(p.type === 'NguyenLieuTho' ? 'active-blue' : 'active-green');
+
+  // Fill panel
+  document.getElementById('p-name').textContent = p.name;
+
+  const now = new Date();
+  if (p.type === 'BanThanhPham') {
+    document.getElementById('p-type').textContent = 'Bán thành phẩm';
+    document.getElementById('p-type').className = 'panel-type type-btp';
+    document.getElementById('fields-btp').style.display = '';
+    document.getElementById('fields-nlt').style.display = 'none';
+
+    document.getElementById('d-btp').value = toLocalInputDT(now);
+    document.getElementById('u-btp').value = toLocalInputDT(addHours(now, p.u_hours));
+    calcE_BTP();
+
+    document.getElementById('d-btp').oninput = calcE_BTP;
+    document.getElementById('u-btp').oninput = () => {};
+
+  } else {
+    document.getElementById('p-type').textContent = 'Nguyên liệu thô';
+    document.getElementById('p-type').className = 'panel-type type-nlt';
+    document.getElementById('fields-btp').style.display = 'none';
+    document.getElementById('fields-nlt').style.display = '';
+
+    // Default HSD bao bì = today + hsd_bao_bi days
+    const defaultHSDBB = addDays(now, p.hsd_bao_bi);
+    document.getElementById('d-nlt').value = toLocalInputDate(defaultHSDBB);
+    document.getElementById('u-nlt').value = toLocalInputDT(now);
+    calcE_NLT();
+
+    document.getElementById('d-nlt').oninput = calcE_NLT;
+    document.getElementById('u-nlt').oninput = calcE_NLT;
+  }
+
+  document.getElementById('qty-display').textContent = 1;
+  document.getElementById('overlay').classList.add('open');
+}
+
+// ══════════════════════════════════════════
+// CALCULATE E
+// ══════════════════════════════════════════
+function calcE_BTP() {
+  const p = currentProduct;
+  if (!p) return;
+  const d = parseDT(document.getElementById('d-btp').value);
+  if (!d) { document.getElementById('e-btp').textContent = '—'; return; }
+  const e = addHours(d, p.e_hours);
+  document.getElementById('e-btp').textContent = formatFull(e);
+}
+
+function calcE_NLT() {
+  const p = currentProduct;
+  if (!p) return;
+  const dStr = document.getElementById('d-nlt').value;
+  const uStr = document.getElementById('u-nlt').value;
+  if (!dStr || !uStr) { document.getElementById('e-nlt').textContent = '—'; return; }
+
+  const d = parseDate(dStr); // HSD bao bì
+  const u = parseDT(uStr);   // thời điểm mở
+  const eFromU = addDays(u, p.hsd_sau_mo);
+  const e = new Date(Math.min(d.getTime(), eFromU.getTime()));
+  document.getElementById('e-nlt').textContent = formatFull(e);
+}
+
+// ══════════════════════════════════════════
+// QUANTITY
+// ══════════════════════════════════════════
+document.getElementById('qty-minus').onclick = () => {
+  if (qty > 1) { qty--; document.getElementById('qty-display').textContent = qty; }
+};
+document.getElementById('qty-plus').onclick = () => {
+  qty++; document.getElementById('qty-display').textContent = qty;
+};
+
+// ══════════════════════════════════════════
+// CLOSE PANEL
+// ══════════════════════════════════════════
+document.getElementById('btn-close').onclick = closePanel;
+document.getElementById('overlay').onclick = (e) => {
+  if (e.target === document.getElementById('overlay')) closePanel();
+};
+function closePanel() {
+  document.getElementById('overlay').classList.remove('open');
+  document.querySelectorAll('.product-btn').forEach(b => b.classList.remove('active-blue','active-green'));
+  currentProduct = null;
+}
+
+// ══════════════════════════════════════════
+// PRINT
+// ══════════════════════════════════════════
+document.getElementById('btn-print').onclick = doPrint;
+
+function doPrint() {
+  const p = currentProduct;
+  if (!p) return;
+
+  let dVal, uVal, eVal;
+
+  if (p.type === 'BanThanhPham') {
+    const d = parseDT(document.getElementById('d-btp').value);
+    const u = parseDT(document.getElementById('u-btp').value);
+    const e = addHours(d, p.e_hours);
+    dVal = d ? formatFull(d) : '—';
+    uVal = u ? formatFull(u) : '—';
+    eVal = d ? formatFull(e) : '—';
+  } else {
+    const dStr = document.getElementById('d-nlt').value;
+    const uStr = document.getElementById('u-nlt').value;
+    const dDate = parseDate(dStr);
+    const u = parseDT(uStr);
+    const eFromU = addDays(u, p.hsd_sau_mo);
+    const e = new Date(Math.min(dDate.getTime(), eFromU.getTime()));
+    dVal = dStr ? formatDateOnly(dDate) : '—';
+    uVal = u ? formatFull(u) : '—';
+    eVal = formatFull(e);
+  }
+
+  const printArea = document.getElementById('print-area');
+  let html = '';
+  for (let i = 0; i < qty; i++) {
+    html += `
+      <div class="tem-page">
+        <div class="tem-name">${p.name}</div>
+        <div class="tem-due-block">
+          <div class="tem-due-row"><span class="tem-due-label">D:</span><span>${dVal}</span></div>
+          <div class="tem-due-row"><span class="tem-due-label">U:</span><span>${uVal}</span></div>
+          <div class="tem-due-row"><span class="tem-due-label">E:</span><span>${eVal}</span></div>
+        </div>
+        <div class="tem-nv"><span>NV:</span><span style="border-bottom:0.3mm solid #000;min-width:28mm;">&nbsp;</span></div>
+      </div>
+    `;
+  }
+  printArea.innerHTML = html;
+
+  setTimeout(() => {
+    window.print();
+    printArea.innerHTML = '';
+  }, 100);
+}
+
+// ══════════════════════════════════════════
+// SEARCH
+// ══════════════════════════════════════════
+document.getElementById('search-nlt').addEventListener('input', e => {
+  renderLists(e.target.value, document.getElementById('search-btp').value);
+});
+document.getElementById('search-btp').addEventListener('input', e => {
+  renderLists(document.getElementById('search-nlt').value, e.target.value);
+});
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+loadData();
+</script>
+</body>
+</html>
