@@ -276,13 +276,7 @@ body{font-family:'Be Vietnam Pro',sans-serif;background:var(--cream);color:var(-
           autocomplete="off" spellcheck="false">
         <div class="cfg-hint">Deploy Apps Script → New deployment → Web app → Anyone → Copy URL dán vào đây</div>
       </div>
-      <div class="cfg-field">
-        <label class="cfg-label">Google Sheet ID</label>
-        <input class="cfg-input" type="text" id="cfg-sheet-id"
-          placeholder="ID lấy từ URL của Google Sheet"
-          autocomplete="off" spellcheck="false">
-        <div class="cfg-hint">Từ URL: docs.google.com/spreadsheets/d/<strong style="color:var(--brown-m)">ID_Ở_ĐÂY</strong>/edit</div>
-      </div>
+
       <div class="cfg-status" id="cfg-status"></div>
     </div>
 
@@ -508,7 +502,6 @@ document.getElementById('search-btp').addEventListener('input',e=>render(documen
 // ═══════════════════════════════════════════════════════════
 function openCfg(){
   document.getElementById('cfg-url').value=localStorage.getItem(LS_URL)||'';
-  document.getElementById('cfg-sheet-id').value=localStorage.getItem(LS_SHEET)||DEFAULT_SHEET;
   document.getElementById('cfg-status').className='cfg-status';
   document.getElementById('cfg-status').textContent='';
   document.getElementById('cfg-overlay').classList.add('open');
@@ -524,7 +517,7 @@ document.getElementById('cfg-overlay').onclick=e=>{if(e.target===document.getEle
 document.getElementById('cfg-save').onclick=async function(){
   const btn=this;
   const url=document.getElementById('cfg-url').value.trim();
-  const sheetId=document.getElementById('cfg-sheet-id').value.trim()||DEFAULT_SHEET;
+  const sheetId=DEFAULT_SHEET;
   const statusEl=document.getElementById('cfg-status');
 
   // Validate URL
